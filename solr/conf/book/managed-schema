@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<schema name="book" version="1.6">
+    <field name="_version_" type="plong" indexed="false" stored="false"/>
+    <field name="_root_" type="string" docValues="false" indexed="true" stored="false"/>
+
+    <uniqueKey>id</uniqueKey>
+
+    <field name="id" type="string" multiValued="false" indexed="true" required="true" stored="true"/>
+    <field name="title" type="text_ja" indexed="true" stored="true"/>
+    <field name="content" type="text_ja" indexed="true" stored="true"/>
+    <field name="created" type="pdate"/>
+    <field name="modified" type="pdate"/>
+    <field name="pages" type="plong"/>
+    <field name="charsperpage" type="plongs"/>
+    <field name="timestamp" type="pdate" indexed="false" stored="true" default="NOW"/>
+    <dynamicField name="ignored_*" type="ignored"/>
+
+    <fieldType name="int" class="solr.TrieIntField" precisionStep="0" positionIncrementGap="0"/>
+    <fieldType name="plong" class="solr.LongPointField" docValues="true"/>
+    <fieldType name="plongs" class="solr.LongPointField" docValues="true" multiValued="true"/>
+    <fieldType name="string" class="solr.StrField" sortMissingLast="true" docValues="true"/>
+    <fieldType name="pdate" class="solr.DatePointField" docValues="true"/>
+    <fieldType name="ignored" class="solr.StrField" indexed="false" stored="false" multiValued="true"/>
+    <fieldType name="text_ja" class="solr.TextField" positionIncrementGap="100">
+        <analyzer>
+            <tokenizer class="solr.JapaneseTokenizerFactory" mode="search"/>
+            <filter name="stop" ignoreCase="true" words="stopwords.txt"/>
+            <filter synonyms="synonyms.txt" name="synonymGraph" expand="true" ignoreCase="true"/>
+            <filter class="solr.CJKWidthFilterFactory"/>
+            <filter class="solr.JapaneseKatakanaStemFilterFactory" minimumLength="4"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+        </analyzer>
+    </fieldType>
+</schema>

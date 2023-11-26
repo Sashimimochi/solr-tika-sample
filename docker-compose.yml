@@ -1,0 +1,95 @@
+version: "3"
+
+x-solr-service: &solr-service
+  image: solr:9.4
+  ports:
+    - "8983:8983"
+    - "9854:9854"
+  volumes:
+    - "./solr/solr.in.sh:/etc/default/solr.in.sh"
+    - "./solr/conf/book:/opt/solr/server/solr/configsets/book/conf"
+    - "./solr/logs:/var/solr/logs"
+    - "./solr/data:/home/solr/data"
+  depends_on:
+    - zookeeper1
+x-zookeeper-service: &zookeeper-service
+  image: zookeeper:3.7
+  environment:
+    ZOO_MY_ID: 1
+    ZOO_SERVERS: server.1=zookeeper1:2888:3888;2181
+    ZOO_4LW_COMMANDS_WHITELIST: mnst,conf,ruok
+x-tika-service: &tika-service
+  build: ./tika/
+  ports:
+    - "9998:9998"
+  working_dir: /app
+  environment:
+    TZ: "Asia/Tokyo"
+x-go-service: &go-service
+  build: ./go/
+  working_dir: /go/src/app
+  volumes:
+    - ./go/app:/go/src/app
+  tty: true
+  environment:
+    TZ: "Asia/Tokyo"
+  depends_on:
+    - mysql
+  links:
+    - mysql
+x-python-service: &python-service
+  build: ./python/
+  working_dir: /app
+  volumes:
+    - ./python/app:/app
+  tty: true
+  environment:
+    TZ: Asia/Tokyo
+  depends_on:
+    - mysql
+  links:
+    - mysql
+x-mysql-service: &mysql-service
+  image: mysql:8.2.0
+  environment:
+    MYSQL_ROOT_PASSWORD: mysql
+    MYSQL_DATABASE: book
+    MYSQL_USER: mysql
+    MYSQL_PASSWORD: mysql
+  ports:
+    - "3306:3306"
+  volumes:
+    - ./mysql:/var/lib/mysql
+
+services:
+  solr_node1:
+    <<: *solr-service
+    container_name: solr_node1
+    profiles:
+      - solr
+  zookeeper1:
+    <<: *zookeeper-service
+    container_name: zookeeper1
+    profiles:
+      - solr
+  tika-server:
+    <<: *tika-service
+    container_name: tika-server
+    profiles:
+      - tika-server
+  go-app:
+    <<: *go-service
+    container_name: go-app
+    profiles:
+      - go
+  python-app:
+    <<: *python-service
+    container_name: python-app
+    profiles:
+      - python
+  mysql:
+    <<: *mysql-service
+    container_name: mysql
+    profiles:
+      - go
+      - python

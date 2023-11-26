@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<config>
+    <luceneMatchVersion>9.4.0</luceneMatchVersion>
+
+    <lib dir="${solr.install.dir:../../../..}/contrib/extraction/lib" regex=".*\.jar" />
+    <lib dir="${solr.install.dir:../../../..}/contrib/langid/lib/" regex=".*\.jar" />
+
+    <dataDir>${solr.data.dir:}</dataDir>
+
+    <schemaFactory class="ManagedIndexSchemaFactory">
+        <bool name="mutable">true</bool>
+        <str name="managedSchemaResourceName">managed-schema</str>
+    </schemaFactory>
+
+    <requestHandler name="/select" class="solr.SearchHandler"/>
+
+    <updateProcessor class="solr.UUIDUpdateProcessorFactory" name="uuid"/>
+    <updateProcessor class="solr.RemoveBlankFieldUpdateProcessorFactory" name="remove-blank"/>
+    <updateProcessor class="solr.ParseBooleanFieldUpdateProcessorFactory" name="parse-boolean"/>
+    <updateProcessor class="solr.ParseLongFieldUpdateProcessorFactory" name="parse-long"/>
+    <updateProcessor class="solr.ParseDoubleFieldUpdateProcessorFactory" name="parse-double"/>
+    <updateProcessor class="solr.ParseDateFieldUpdateProcessorFactory" name="parse-date"/>
+
+    <requestHandler name="/update/extract" startup="lazy" class="solr.extraction.ExtractingRequestHandler">
+        <lst name="defaults">
+            <str name="lowernames">true</str>
+            <str name="captureAttr">true</str>
+            <str name="fmap.xmptpg_npages">pages</str>
+            <str name="fmap.pdf_charsperpage">charsperpage</str>
+            <str name="uprefix">ignored_</str>
+            <str name="processor">uuid,remove-blank,parse-boolean,parse-long,parse-double,parse-date</str>
+        </lst>
+    </requestHandler>
+    
+
+</config>

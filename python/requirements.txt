@@ -1,0 +1,2 @@
+tika
+mysql-connector-python
