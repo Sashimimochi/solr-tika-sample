@@ -7,4 +7,4 @@ require (
 	github.com/google/go-tika v0.3.0
 )
 
-require golang.org/x/net v0.23.0 // indirect
+require golang.org/x/net v0.33.0 // indirect
