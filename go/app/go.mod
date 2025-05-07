@@ -1,6 +1,7 @@
 module app
 
 go 1.24
+
 toolchain go1.24.1
 
 require (
@@ -8,4 +9,4 @@ require (
 	github.com/google/go-tika v0.3.0
 )
 
-require golang.org/x/net v0.36.0 // indirect
+require golang.org/x/net v0.38.0 // indirect
